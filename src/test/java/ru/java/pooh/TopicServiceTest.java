@@ -6,36 +6,24 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class TopicServiceTest {
-    @Test
-    public void whenPostThenGetTopic() {
-        TopicService topicService = new TopicService();
-        topicService.process(
-                new Req("POST", "topic", "weather", "temperature", "18")
-        );
-        Resp result = topicService.process(
-                new Req("GET", "topic", "weather", "userId", "1")
-        );
-        assertThat(result.text(), is("18"));
-    }
-
 
     @Test
-    public void whenPostAndGet2() {
+    public void whenPostAndGet() {
         TopicService topicService = new TopicService();
-        Req post = Req.of("POST /topic/weather -d temperature=18");
+        Req post = Req.of("POST /topic/weather -d \"temperature=18\"");
         Req get = Req.of("GET /topic/weather/1");
         topicService.process(post);
         Resp rsl = topicService.process(get);
-        Resp expected = new Resp("18", 10);
+        Resp expected = new Resp("temperature=18", 200);
         assertThat(rsl, is(expected));
     }
 
     @Test
     public void whenGetFailed() {
         TopicService topicService = new TopicService();
-        Req get = Req.of("GET /topic/weather/1");
+        Req get = Req.of("GET /topic/weather/");
         Resp rsl = topicService.process(get);
-        Resp expected = new Resp("Failed", 0);
+        Resp expected = new Resp("Failed", 222);
         assertThat(rsl, is(expected));
     }
 }

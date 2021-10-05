@@ -7,20 +7,20 @@ import java.util.regex.Pattern;
 public class Req {
     private final String method;
     private final String mode;
-    private final String queue;
-    private final String key;
-    private final String value;
+    private final String name;
+    private final String text;
+    private final String id;
 
-    public Req(String method, String mode, String queue, String key, String value) {
+    public Req(String method, String mode, String name, String text, String id) {
         this.method = method;
         this.mode = mode;
-        this.queue = queue;
-        this.key = key;
-        this.value = value;
+        this.name = name;
+        this.text = text;
+        this.id = id;
     }
 
     public static Req of(String content) {
-        String[] array = {"\\A\\w+", "topic|queue", "weather", "\\w+=|\\w+/\\w+/\\d++", "=\\w+|\\w+\\Z"};
+        String[] array = {"\\A\\w+", "topic|queue", "weather", "\\w+=\\w+", "weather/\\w+"};
         for (int i = 0; i < array.length; i++) {
             Pattern pattern = Pattern.compile(array[i]);
             Matcher matcher = pattern.matcher(content);
@@ -29,12 +29,13 @@ public class Req {
             }
         }
         if (array[0].equals("GET") && array[1].equals("topic")) {
-            array[3] = array[3].substring(array[3].lastIndexOf('/') + 1);
+            array[4] = array[4].substring(array[4].lastIndexOf('/') + 1);
+        } else {
+            array[4] = "0";
         }
         return new Req(array[0], array[1],
                 content.contains("weather") ? array[2] : "new_topic",
-                array[3].contains("=") ? array[3].substring(0, array[3].indexOf('=')) : array[3],
-                array[4].contains("=") ? array[4].substring(array[4].indexOf('=') + 1) : array[4]);
+                array[0].equals("POST") ? array[3].replaceAll("\"", " ").trim() : "", array[4]);
     }
 
     public String method() {
@@ -45,16 +46,16 @@ public class Req {
         return mode;
     }
 
-    public String queue() {
-        return queue;
+    public String name() {
+        return name;
     }
 
-    public String key() {
-        return key;
+    public String text() {
+        return text;
     }
 
-    public String value() {
-        return value;
+    public String id() {
+        return id;
     }
 
 
@@ -63,9 +64,9 @@ public class Req {
         return "Req{"
                 + "method='" + method + '\''
                 + ", mode='" + mode + '\''
-                + ", queue='" + queue + '\''
-                + ", key='" + key + '\''
-                + ", value='" + value + '\''
+                + ", name='" + name + '\''
+                + ", text='" + text + '\''
+                + ", id='" + id + '\''
                 + '}';
     }
 
@@ -78,11 +79,11 @@ public class Req {
             return false;
         }
         Req req = (Req) o;
-        return Objects.equals(method, req.method) && Objects.equals(mode, req.mode) && Objects.equals(queue, req.queue) && Objects.equals(key, req.key) && Objects.equals(value, req.value);
+        return Objects.equals(method, req.method) && Objects.equals(mode, req.mode) && Objects.equals(name, req.name) && Objects.equals(text, req.text) && Objects.equals(id, req.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(method, mode, queue, key, value);
+        return Objects.hash(method, mode, name, text, id);
     }
 }

@@ -8,15 +8,14 @@ import static org.junit.Assert.*;
 public class ReqTest {
     @Test
     public void whenPostMethod() {
-        String content = "POST /topic/weather -d temperature=18";
+        String content = "POST /topic/weather -d \"temperature=18\"";
         Req req = Req.of(content);
         assertThat(req.method(), is("POST"));
         assertThat(req.mode(), is("topic"));
-        assertThat(req.queue(), is("weather"));
-        assertThat(req.key(), is("temperature"));
-        assertThat(req.value(), is("18"));
+        assertThat(req.name(), is("weather"));
+        assertThat(req.text(), is("temperature=18"));
+        assertThat(req.id(), is("0"));
     }
-
 
     @Test
     public void whenGetMethod() {
@@ -24,7 +23,8 @@ public class ReqTest {
         Req req = Req.of(content);
         assertThat(req.method(), is("GET"));
         assertThat(req.mode(), is("topic"));
-        assertThat(req.queue(), is("weather"));
-        assertThat(req.key(), is("1"));
+        assertThat(req.name(), is("weather"));
+        assertThat(req.id(), is("1"));
+        assertThat(req.text(), is(""));
     }
 }

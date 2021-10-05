@@ -8,15 +8,16 @@ public class QueueService implements Service {
 
     @Override
     public Resp process(Req req) {
-        String temp = req.queue();
-        Resp rsl = new Resp("Failed", 0);
+        String temp = req.name();
+        Resp rsl = new Resp("Failed", 222);
         if ("queue".equals(req.mode())) {
             queue.putIfAbsent(temp, new ConcurrentLinkedQueue<>());
-            if (req.method().equals("POST")) {
-                queue.get(temp).add(req.value());
-                rsl = new Resp("Post", 5);
-            } else if (req.method().equals("GET")) {
-                rsl = new Resp(queue.get(temp).poll(), 10);
+            if ("POST".equals(req.method())) {
+                queue.get(temp).add(req.text());
+                rsl = new Resp("Post add: " + req.text(), 200);
+            } else if ("GET".equals(req.method())) {
+                String message = queue.get(temp).poll();
+                rsl = message == null ? rsl : new Resp(message, 200);
             }
         }
         return rsl;
